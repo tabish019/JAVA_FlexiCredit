@@ -1,0 +1,104 @@
+import java.util.ArrayList;
+import java.util.Scanner;
+
+// Main Class containing both the Book definition and the logic
+public class LibraryManagementSystem {
+
+    // 1. The Book Class (Inner Class for simplicity in one file)
+    static class Book {
+        private String title;
+        private String author;
+
+        public Book(String title, String author) {
+            this.title = title;
+            this.author = author;
+        }
+
+        public String getTitle() { return title; }
+        
+        @Override
+        public String toString() {
+            return String.format("Title: %-20s | Author: %-20s", "\"" + title + "\"", author);
+        }
+    }
+
+    // 2. The Management Logic
+    private ArrayList<Book> library = new ArrayList<>();
+    private Scanner scanner = new Scanner(System.in);
+
+    public void run() {
+        int choice;
+        do {
+            System.out.println("\n--- 📚 Library Menu ---");
+            System.out.println("1. Add New Book");
+            System.out.println("2. Remove (Issue) Book");
+            System.out.println("3. Search by Title");
+            System.out.println("4. Display All Books");
+            System.out.println("5. Exit");
+            System.out.print("Enter choice: ");
+            
+            while (!scanner.hasNextInt()) {
+                System.out.println("Please enter a valid number.");
+                scanner.next();
+            }
+            choice = scanner.nextInt();
+            scanner.nextLine(); // Clear buffer
+
+            switch (choice) {
+                case 1 -> addBook();
+                case 2 -> removeBook();
+                case 3 -> searchBook();
+                case 4 -> displayBooks();
+                case 5 -> System.out.println("Exiting System. Goodbye!");
+                default -> System.out.println("Invalid option.");
+            }
+        } while (choice != 5);
+    }
+
+    private void addBook() {
+        System.out.print("Enter Title: ");
+        String title = scanner.nextLine();
+        System.out.print("Enter Author: ");
+        String author = scanner.nextLine();
+        library.add(new Book(title, author));
+        System.out.println("✔️ Success: " + title + " added to collection.");
+    }
+
+    private void removeBook() {
+        System.out.print("Enter Title to remove: ");
+        String title = scanner.nextLine();
+        // removeIf handles the dynamic resizing and searching internally
+        boolean removed = library.removeIf(b -> b.getTitle().equalsIgnoreCase(title));
+        if (removed) {
+            System.out.println("❌ Book removed/issued.");
+        } else {
+            System.out.println("⚠️ Book not found.");
+        }
+    }
+
+    private void searchBook() {
+        System.out.print("Enter Title to search: ");
+        String title = scanner.nextLine();
+        library.stream()
+               .filter(b -> b.getTitle().equalsIgnoreCase(title))
+               .findFirst()
+               .ifPresentOrElse(
+                   System.out::println, 
+                   () -> System.out.println("⚠️ No results found for: " + title)
+               );
+    }
+
+    private void displayBooks() {
+        if (library.isEmpty()) {
+            System.out.println("The library is currently empty.");
+        } else {
+            System.out.println("\n--- Current Inventory (" + library.size() + " books) ---");
+            library.forEach(System.out::println);
+        }
+    }
+
+    // 3. Main Entry Point
+    public static void main(String[] args) {
+        new LibraryManagementSystem().run();
+    }
+}
